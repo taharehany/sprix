@@ -175,18 +175,26 @@
 						</client-only>
 					</v-stepper-window>
 
-					<v-stepper-actions class="flex justify-center px-16">
-						<template #prev />
+					<v-stepper-actions class="flex justify-center gap-4 px-16">
+						<template #prev>
+							<v-btn
+								v-if="currentStep < 2"
+								variant="outlined"
+								class="px-16 font-bold"
+								@click="prevStep"
+							>
+								Prev
+							</v-btn>
+						</template>
 
 						<template #next>
 							<v-btn
 								v-if="currentStep < 2"
 								color="primary"
 								variant="elevated"
-								class="px-10 font-bold"
+								class="px-16 font-bold"
 								type="submit"
 								:loading="isSubmitting"
-								block
 							>
 								Submit
 							</v-btn>
@@ -196,34 +204,35 @@
 								color="primary"
 								variant="elevated"
 								class="px-16 font-bold"
+								@click="currentStep = 3"
 							>
 								Payment
 							</v-btn>
-
-							<template v-if="currentStep === 3">
-								<div class="flex gap-6">
-									<v-btn
-										color="primary"
-										variant="elevated"
-										class="px-16 font-bold"
-										prepend-icon="mdi-tray-arrow-down"
-										@click="stepsCompleted = true"
-									>
-										Download
-									</v-btn>
-
-									<v-btn
-										color="gray"
-										variant="elevated"
-										class="px-16 font-bold"
-										prepend-icon="mdi-send-outline"
-									>
-										Send Email
-									</v-btn>
-								</div>
-							</template>
 						</template>
 					</v-stepper-actions>
+
+					<template v-if="currentStep === 3">
+						<div class="flex gap-6 justify-center">
+							<v-btn
+								color="primary"
+								variant="elevated"
+								class="px-16 font-bold"
+								prepend-icon="mdi-tray-arrow-down"
+								@click="stepsCompleted = true"
+							>
+								Download
+							</v-btn>
+
+							<v-btn
+								color="gray"
+								variant="elevated"
+								class="px-16 font-bold"
+								prepend-icon="mdi-send-outline"
+							>
+								Send Email
+							</v-btn>
+						</div>
+					</template>
 				</Form>
 			</v-stepper>
 		</v-sheet>
