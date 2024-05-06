@@ -1,115 +1,269 @@
 <template>
-	<div class="container mx-auto">
-		<div class="grid grid-cols-4">
-			<div
-				v-for="(step, index) in steps"
-				:key="step?.title"
-				:class="{ 'text-primary': currentStep === steps.indexOf(step) }"
-			>
-				<div
-					class="mb-4 flex items-center"
-					:class="{ 'justify-end': index !== steps.length - 1 }"
+	<v-container>
+		<v-sheet max-width="1400" class="mx-auto">
+			<v-stepper v-model="currentStep" alt-labels>
+				<Form
+					v-slot="{ errors, isSubmitting }"
+					:validation-schema="currentSchema"
+					:initial-values="initialValues"
+					keep-values
+					@submit="nextStep"
 				>
-					<span
-						v-if="index !== 0"
-						class="icon-line border-2"
-						:class="{
-							'border-primary': steps[index -1]?.isActive,
-						}"
-					/>
+					<v-stepper-header>
+						<template v-for="(step, i) in steps" :key="i">
+							<v-stepper-item :value="i" :complete="currentStep > i">
+								<template #title>
+									<h4
+										class="text-nowrap mb-2 font-bold"
+										:class="{ 'text-secondary': currentStep === i }"
+									>
+										{{ step?.title }}
+									</h4>
+									<p class="text-nowrap">{{ step?.subtitle }}</p>
+								</template>
 
-					<svg
-						width="32"
-						height="33"
-						viewBox="0 0 32 33"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<rect
-							x="1"
-							y="1.33234"
-							width="30"
-							height="30"
-							rx="15"
-							fill="#F9F5FF"
-						/>
-						<rect
-							x="1"
-							y="1.33234"
-							width="30"
-							height="30"
-							rx="15"
-							:stroke="step?.isActive ? '#F19DBB' : '#EAECF0'"
-							stroke-width="2"
-						/>
-						<circle
-							cx="16"
-							cy="16.3323"
-							r="5"
-							:fill="step?.isActive ? '#F19DBB' : '#EAECF0'"
-						/>
-					</svg>
+								<template #icon>
+									<AtomsStepIcon
+										:is-active="step?.isActive"
+										:is-completed="currentStep > i || stepsCompleted"
+									/>
+								</template>
+							</v-stepper-item>
 
-					<span
-						v-if="index !== steps.length - 1"
-						class="icon-line border-2"
-						:class="{
-							'border-primary': steps[index + 1]?.isActive,
-						}"
-					/>
-				</div>
-			</div>
-		</div>
+							<v-divider
+								v-if="i !== steps.length - 1"
+								class="opacity-100"
+								thickness="2"
+							/>
+						</template>
+					</v-stepper-header>
 
-		<div class="grid grid-cols-4">
-			<div
-				v-for="(step, index) in steps"
-				:key="index"
-				:class="{ 'text-primary': currentStep === index }"
-			>
-				<div class="text-center">
-					<div>
-						<h1>{{ step?.title }}</h1>
-						<p>{{ step?.subtitle }}</p>
-					</div>
-				</div>
-			</div>
-		</div>
+					<v-stepper-window>
+						<v-stepper-window-item value="1">
+							<v-row>
+								<v-col cols="12">
+									<Field v-slot="{ field }" name="full_name">
+										<label for="identity" class="d-block mb-2">
+											Full Name
+										</label>
 
-		<div
-			v-for="(step, index) in steps"
-			:key="index"
-			:class="{ 'text-primary': currentStep === index }"
-		>
-			<template v-if="currentStep === index">
-				<div v-show="currentStep === 0">
-					<h1>descr</h1>
-					<p />
-				</div>
+										<v-text-field
+											v-bind="field"
+											placeholder="Full Name"
+											:error-messages="errors['full_name']"
+										/>
+									</Field>
+								</v-col>
 
-				<div v-show="currentStep === 1">
-					<h1>{{ step }}</h1>
-				</div>
+								<v-col cols="12">
+									<Field v-slot="{ field }" name="phone_number">
+										<label for="Phone Number" class="d-block mb-2">
+											Phone Number
+										</label>
 
-				<div v-show="currentStep === 2">
-					<h1>{{ step }}</h1>
-				</div>
+										<v-text-field
+											v-bind="field"
+											placeholder="Phone Number"
+											:error-messages="errors['phone_number']"
+										/>
+									</Field>
+								</v-col>
+							</v-row>
+						</v-stepper-window-item>
 
-				<div v-show="currentStep === 3">
-					<h1>{{ step }}</h1>
-				</div>
-			</template>
-		</div>
+						<client-only>
+							<v-stepper-window-item value="2">
+								<Field v-slot="{ field }" name="certificate">
+									<v-radio-group
+										v-bind="field"
+										v-model="field.value"
+										hide-details
+										inline
+										class="w-full"
+									>
+										<div
+											class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 py-8 px-4"
+										>
+											<label
+												v-for="item in certificatesList"
+												:key="item?.name"
+												:for="item?.name"
+												class="w-full"
+											>
+												<v-card
+													elevation="3"
+													width="100%"
+													rounded="lg"
+													hover
+													:variant="
+														field.value === item?.name
+															? 'outlined'
+															: 'flat'
+													"
+													:color="
+														field.value === item?.name
+															? 'primary'
+															: 'white'
+													"
+												>
+													<div class="text-end p-4 pb-0">
+														<v-radio
+															:id="item?.name"
+															:value="item?.name"
+														/>
+													</div>
 
-		<button :disabled="currentStep === 0" @click="prevStep">Prev</button>
-		<button :disabled="currentStep === steps.length - 1" @click="nextStep">
-			Next
-		</button>
-	</div>
+													<div class="text-center">
+														<v-card-title
+															class="pt-0 text-primary font-bold"
+														>
+															{{ item?.title }}
+														</v-card-title>
+														<span class="text-4xl font-bold">
+															{{ item?.price }}
+														</span>
+														<v-card-text>
+															{{ item?.description }}
+														</v-card-text>
+													</div>
+
+													<v-list lines="one">
+														<v-list-item
+															v-for="itemList in item?.list"
+															:key="itemList?.title"
+														>
+															<v-list-item-title>
+																{{ itemList?.title }}
+															</v-list-item-title>
+
+															<template #prepend>
+																<img
+																	src="~/assets/images/icons/check.svg"
+																	class="me-2"
+																/>
+															</template>
+														</v-list-item>
+													</v-list>
+												</v-card>
+											</label>
+										</div>
+									</v-radio-group>
+								</Field>
+							</v-stepper-window-item>
+
+							<v-stepper-window-item value="3">
+								<div class="text-center">
+									<img
+										src="~/assets/images/paymob-logo.png"
+										alt=""
+										class="mx-auto mt-10 mb-10"
+									/>
+									<h3 class="font-bold">Paymob</h3>
+									<p>Payment with Paymob is available</p>
+								</div>
+							</v-stepper-window-item>
+
+							<v-stepper-window-item value="4">
+								<div class="text-center">
+									<img
+										src="~/assets/images/certificate.svg"
+										alt=""
+										class="mx-auto mt-10 mb-10"
+									/>
+								</div>
+							</v-stepper-window-item>
+						</client-only>
+					</v-stepper-window>
+
+					<v-stepper-actions class="flex justify-center px-16">
+						<template #prev />
+
+						<template #next>
+							<v-btn
+								v-if="currentStep < 2"
+								color="primary"
+								variant="elevated"
+								class="px-10 font-bold"
+								type="submit"
+								:loading="isSubmitting"
+								block
+							>
+								Submit
+							</v-btn>
+
+							<v-btn
+								v-if="currentStep === 2"
+								color="primary"
+								variant="elevated"
+								class="px-16 font-bold"
+							>
+								Payment
+							</v-btn>
+
+							<template v-if="currentStep === 3">
+								<div class="flex gap-6">
+									<v-btn
+										color="primary"
+										variant="elevated"
+										class="px-16 font-bold"
+										prepend-icon="mdi-tray-arrow-down"
+										@click="stepsCompleted = true"
+									>
+										Download
+									</v-btn>
+
+									<v-btn
+										color="gray"
+										variant="elevated"
+										class="px-16 font-bold"
+										prepend-icon="mdi-send-outline"
+									>
+										Send Email
+									</v-btn>
+								</div>
+							</template>
+						</template>
+					</v-stepper-actions>
+				</Form>
+			</v-stepper>
+		</v-sheet>
+	</v-container>
 </template>
  
 <script lang="ts" setup>
-const steps = ref([
+import { toTypedSchema } from "@vee-validate/zod";
+import * as zod from "zod";
+
+const validationSchema = computed(() => [
+	toTypedSchema(
+		zod.object({
+			full_name: zod.string().min(1, { message: "The name is required" }),
+			phone_number: zod
+				.string()
+				.min(1, { message: "The phone number is required" }),
+		})
+	),
+	toTypedSchema(
+		zod.object({
+			certificate: zod.string(),
+		})
+	),
+]);
+
+const currentSchema = computed(() => {
+	return validationSchema.value[currentStep.value];
+});
+
+const userRouter = useRouter(),
+	userRoute = useRoute(),
+	stepsCompleted = ref(false),
+	currentStep = ref(userRoute.query.step ? Number(userRoute.query.step) : 0),
+	initialValues = ref({
+		full_name: "",
+		phone_number: "",
+		certificate: "two",
+	}),
+	steps = ref([
 		{
 			title: "Your details",
 			subtitle: "Name and email",
@@ -131,32 +285,108 @@ const steps = ref([
 			isActive: false,
 		},
 	]),
-	currentStep = ref(0);
+	certificatesList = ref([
+		{
+			title: "Certificate",
+			price: "500 EGP",
+			description: "Billed annually.",
+			name: "one",
+			list: [
+				{
+					title: "200+ integrations",
+				},
+				{
+					title: "200+ integrations",
+				},
+				{
+					title: "200+ integrations",
+				},
+			],
+		},
+		{
+			title: "Certificate",
+			price: "500 EGP",
+			description: "Billed annually.",
+			name: "two",
+			list: [
+				{
+					title: "200+ integrations",
+				},
+				{
+					title: "200+ integrations",
+				},
+				{
+					title: "200+ integrations",
+				},
+			],
+		},
+		{
+			title: "Certificate",
+			price: "500 EGP",
+			description: "Billed annually.",
+			name: "three",
+			list: [
+				{
+					title: "200+ integrations",
+				},
+				{
+					title: "200+ integrations",
+				},
+				{
+					title: "200+ integrations",
+				},
+			],
+		},
+	]);
 
-const prevStep = () => {
+function prevStep() {
 	if (currentStep.value > 0) {
 		currentStep.value -= 1;
 	}
+}
 
-	if (currentStep.value !== 0) {
-		steps.value[currentStep.value].isActive = false;
-	}
-};
+function nextStep(values: Record<string, string>) {
+	if (currentStep.value === 3) {
+		const formData = new FormData();
 
-const nextStep = () => {
-	if (currentStep.value < steps.value.length - 1) {
-		currentStep.value += 1;
-		steps.value[currentStep.value].isActive = true;
+		Object.entries(values).forEach(([key, value]) => {
+			return formData.append(key, value);
+		});
+
+		return;
 	}
-};
+
+	if (currentStep.value < 3) currentStep.value++;
+}
+
+watch(
+	currentStep,
+	() => {
+		userRouter.push({ query: { step: currentStep.value } });
+		for (let i = 0; i < steps.value.length; i++) {
+			if (i <= currentStep.value) {
+				steps.value[i].isActive = true;
+			} else steps.value[i].isActive = false;
+		}
+	},
+	{ immediate: true }
+);
 </script>
 
 <style scoped>
-.is-active {
-	font-weight: bold;
+:deep(.v-stepper-item__avatar.v-avatar) {
+	background: transparent !important;
 }
 
-.icon-line {
-	width: calc(50% - 16px);
+:deep(.v-stepper-header) {
+	box-shadow: none !important;
+}
+
+:deep(.v-stepper-item) {
+	opacity: 1 !important;
+}
+
+:deep(.v-selection-control-group--inline) {
+	flex-direction: column;
 }
 </style>

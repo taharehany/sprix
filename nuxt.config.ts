@@ -1,14 +1,29 @@
+import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+
+
 export default defineNuxtConfig({
   ssr: true,
   css: [
     '~/assets/style/main.scss',
   ],
-  modules: ['@nuxt/ui', "@nuxt/eslint"],
-  colorMode: {
-    preference: 'light'
+  build: {
+    transpile: ['vuetify'],
   },
-  ui: {
-    global: true,
+  modules: [
+    (_options, nuxt) => {
+      nuxt.hooks.hook('vite:extendConfig', (config) => {
+        config?.plugins?.push(vuetify({ autoImport: true }))
+      })
+    },
+    "@nuxt/eslint",
+    "@nuxtjs/tailwindcss"
+  ],
+  vite: {
+    vue: {
+      template: {
+        transformAssetUrls,
+      },
+    },
   },
   devtools: { enabled: false },
   runtimeConfig: {
