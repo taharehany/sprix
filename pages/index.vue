@@ -9,9 +9,13 @@
 					keep-values
 					@submit="nextStep"
 				>
-					<v-stepper-header>
+					<v-stepper-header class="mb-8">
 						<template v-for="(step, i) in steps" :key="i">
-							<v-stepper-item :value="i" :complete="currentStep > i">
+							<v-stepper-item
+								:value="i"
+								:complete="currentStep > i"
+								class="min-w-72"
+							>
 								<template #title>
 									<h4
 										class="text-nowrap mb-2 font-bold"
@@ -38,7 +42,7 @@
 						</template>
 					</v-stepper-header>
 
-					<v-stepper-window>
+					<v-stepper-window class="ma-0">
 						<v-stepper-window-item value="1">
 							<v-row>
 								<v-col cols="12">
@@ -175,7 +179,7 @@
 						</client-only>
 					</v-stepper-window>
 
-					<v-stepper-actions class="flex justify-center gap-4 px-16">
+					<v-stepper-actions class="flex justify-center gap-4 mt-10">
 						<template #prev>
 							<v-btn
 								v-if="currentStep < 2"
@@ -216,7 +220,7 @@
 							<v-btn
 								color="primary"
 								variant="elevated"
-								class="px-16 font-bold"
+								class="px-6 font-bold"
 								prepend-icon="mdi-tray-arrow-down"
 								@click="stepsCompleted = true"
 							>
@@ -226,7 +230,7 @@
 							<v-btn
 								color="gray"
 								variant="elevated"
-								class="px-16 font-bold"
+								class="px-6 font-bold"
 								prepend-icon="mdi-send-outline"
 							>
 								Send Email
@@ -397,5 +401,9 @@ watch(
 
 :deep(.v-selection-control-group--inline) {
 	flex-direction: column;
+}
+
+:deep(.v-stepper-window) {
+	margin: 0 !important;
 }
 </style>
